@@ -1,20 +1,20 @@
-import CheapflightsPage from '../../../pages/cheapflights.page.js';
+import HomePage from '../../../pages/HomePage.js';
 
 describe('Cheapflights - Homepage', () => {
 
     beforeEach(async()=>{
-        await CheapflightsPage.open();
+        await HomePage.open();
     });
 
     it('should display the Cheapflights logo', async() =>{
-        await expect(CheapflightsPage.logo).toBeDisplayed();
+        await expect(HomePage.logo).toBeDisplayed();
     });
     it('should display the Sign in button', async() =>{
-        await expect(CheapflightsPage.signInButton).toBeDisplayed();
+        await expect(HomePage.signInButton).toBeDisplayed();
     });
     it('should display the Sign in button to the right of the logo', async()=>{
-        const loginLocation = await CheapflightsPage.logo.getLocation();
-        const signinLocation = await CheapflightsPage.signInButton.getLocation();
+        const loginLocation = await HomePage.logo.getLocation();
+        const signinLocation = await HomePage.signInButton.getLocation();
         expect (signinLocation.x).toBeGreaterThan(loginLocation.x);
     })
 
