@@ -1,4 +1,4 @@
-import { getFormattedDate } from '../test/utils/date.utils.js';
+import { switchToNewWindow } from '../test/utils/browser.utils.js';
 
 class HomePage {
 
@@ -29,7 +29,7 @@ class HomePage {
     }
 
     get searchButton() {
-        return $('button[role="button"][aria-label="Search"]');
+        return $('[role="button"][aria-label="Search"]');
     }
 
     get departureDateButton() {
@@ -60,7 +60,20 @@ class HomePage {
     }
 
     get tripTypeButton() {
-        return $('[role="combobox"][aria-label="Trip type"]');
+        return $('div[role="combobox"][aria-label="Trip type"]');
+    }
+
+    async clearBrowserState() {
+        try {
+            await browser.deleteAllCookies();
+
+            await browser.execute(() => {
+                localStorage.clear();
+                sessionStorage.clear();
+            });
+        } catch (error) {
+            console.warn('Browser cleanup failed:', error.message);
+        }
     }
     async open() {
         await browser.url('/');
@@ -101,10 +114,7 @@ class HomePage {
         await this.getDateButton(date).click();
     }
 
-    async selectDepartureAndReturnDates() {
-        const departureDate = getFormattedDate(0);
-        const returnDate = getFormattedDate(3);
-
+    async selectDepartureAndReturnDates(departureDate, returnDate) {
         // Open calendar only if it isn't already open
         if (!(await this.departureCalendar.isDisplayed())) {
             await this.departureDateButton.click();
@@ -114,20 +124,66 @@ class HomePage {
         await this.selectDate(returnDate);
     }
 
-    async searchFlights(origin, destination, cabinClass) {
+    async searchFlights({
+        origin,
+        destination,
+        cabinClass,
+        departureDate,
+        returnDate
+    }) {
         await this.setOrigin(origin);
         await this.setDestination(destination);
-        await this.selectDepartureAndReturnDates();
+        await this.selectDepartureAndReturnDates(
+            departureDate,
+            returnDate
+        );
+
+        await browser.pause(1000);
+
         await this.selectCabinClass(cabinClass);
+        const originalWindow = await browser.getWindowHandle();
         await this.searchButton.click();
+
+        return await switchToNewWindow(originalWindow);
+       
     }
 
     async selectCabinClass(cabinClass) {
         const cabinOption = this.getCabinClassOption(cabinClass);
-        await cabinOption.click();
-        await expect(cabinOption).toHaveAttribute('aria-checked', 'true');
-        // Close cabin class selector
+
+        const isSelected =
+            await cabinOption.getAttribute('aria-checked') === 'true';
+
+        if (!isSelected) {
+            await cabinOption.click();
+
+            await expect(cabinOption).toHaveAttribute(
+                'aria-checked',
+                'true'
+            );
+        }
+
+        // Close the cabin/traveler selector
         await this.tripTypeButton.click();
+
+        await expect(this.tripTypeButton).toHaveAttribute(
+            'aria-expanded',
+            'false'
+        );
+    }
+
+    async closeDepartureCalendar() {
+        if (await this.departureCalendar.isDisplayed()) {
+            await browser.keys('Escape');
+
+            await browser.waitUntil(
+                async () => !(await this.departureCalendar.isDisplayed()),
+                {
+                    timeout: 5000,
+                    timeoutMsg: 'Departure calendar did not close'
+                }
+            );
+        }
     }
 }
 

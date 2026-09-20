@@ -1,14 +1,33 @@
-export function getFormattedDate(daysFromToday = 0) {
-    const date = new Date();
+export function getFlightDates() {
+    const departure = new Date();
+    const returnDate = new Date();
 
-    date.setDate(date.getDate() + daysFromToday);
+    returnDate.setDate(returnDate.getDate() + 3);
 
-    const month = date.toLocaleString('en-US', {
-        month: 'long'
-    });
+    const formatCalendarDate = (date) => {
+        const month = date.toLocaleString('en-US', {
+            month: 'long'
+        });
 
-    const day = date.getDate();
-    const year = date.getFullYear();
+        return `${month} ${date.getDate()} ${date.getFullYear()}`;
+    };
 
-    return `${month} ${day} ${year}`;
+    const formatHeaderDate = (date) => {
+        const weekday = date.toLocaleString('en-US', {
+            weekday: 'short'
+        });
+
+        return `${weekday} ${date.getDate()}/${date.getMonth() + 1}`;
+    };
+
+    return {
+        departure: {
+            calendar: formatCalendarDate(departure),
+            header: formatHeaderDate(departure)
+        },
+        return: {
+            calendar: formatCalendarDate(returnDate),
+            header: formatHeaderDate(returnDate)
+        }
+    };
 }

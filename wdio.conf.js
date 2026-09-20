@@ -12,6 +12,11 @@ exports.config = {
     maxInstances: 1,
     capabilities: [{
         browserName: 'chrome',
+        'goog:chromeOptions': {
+            args: [
+                '--window-size=1920,1080'
+            ]
+        },
         'wdio:chromedriverOptions': {
             binary: './node_modules/.bin/chromedriver'
         }
