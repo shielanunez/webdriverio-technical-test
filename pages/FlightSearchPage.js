@@ -1,60 +1,41 @@
 class FlightSearchPage {
 
-    get resultsOrigin() {
-        return $(
-            '[aria-hidden="false"] [role="button"][aria-label^="Flight origin input"]'
-        );
-    }
-
-    get resultsDestination() {
-        return $(
-            '[aria-hidden="false"] [role="button"][aria-label^="Flight destination input"]'
-        );
-    }
-
-    get departureDate() {
-        return $(
-            '[aria-hidden="false"] [aria-label^="Departure date"]'
-        );
-    }
-
-    get returnDate() {
-        return $(
-            '[aria-hidden="false"] [aria-label^="Return date"]'
-        );
-    }
-
-    get cabinClass() {
-        return $(
-            '[aria-hidden="false"] .NITa-cabin[aria-label]'
-        );
-    }
-
-    async getReturnTripButton() {
-        return this.getVisibleElement(
+    async verifySearchPageLoaded() {
+        const returnTripButton = await this.getVisibleElement(
             '[role="button"][aria-label="Return"]'
         );
 
+        await expect(returnTripButton).toBeDisplayed();
     }
 
     async getResultsOrigin(origin) {
-
         return this.getVisibleElement(
-
             `[role="option"][aria-label="${origin}"]`
-
         );
-
     }
 
     async getResultsDestination(destination) {
-
         return this.getVisibleElement(
-
             `[role="option"][aria-label="${destination}"]`
-
         );
+    }
 
+    async getDepartureDate() {
+        return this.getVisibleElement(
+            '[aria-label^="Departure date"]'
+        );
+    }
+
+    async getReturnDate() {
+        return this.getVisibleElement(
+            '[aria-label^="Return date"]'
+        );
+    }
+
+    async getCabinClass() {
+        return this.getVisibleElement(
+            '.NITa-cabin[aria-label]'
+        );
     }
 
     async verifySearchDetails({
@@ -65,24 +46,33 @@ class FlightSearchPage {
         cabinClass
     }) {
         const resultsOrigin = await this.getResultsOrigin(origin);
+        const resultsDestination =
+            await this.getResultsDestination(destination);
 
-        const resultsDestination = await this.getResultsDestination(destination);
+        const departureDateElement =
+            await this.getDepartureDate();
+
+        const returnDateElement =
+            await this.getReturnDate();
+
+        const cabinClassElement =
+            await this.getCabinClass();
 
         await expect(resultsOrigin).toBeDisplayed();
 
         await expect(resultsDestination).toBeDisplayed();
 
-        await expect(this.departureDate).toHaveAttribute(
+        await expect(departureDateElement).toHaveAttribute(
             'aria-label',
             `Departure date ${departureDate}`
         );
 
-        await expect(this.returnDate).toHaveAttribute(
+        await expect(returnDateElement).toHaveAttribute(
             'aria-label',
             `Return date ${returnDate}`
         );
 
-        await expect(this.cabinClass).toHaveAttribute(
+        await expect(cabinClassElement).toHaveAttribute(
             'aria-label',
             cabinClass
         );
@@ -101,5 +91,19 @@ class FlightSearchPage {
             `No visible element found for selector: ${selector}`
         );
     }
+
+    async verifySearchResultsExist() {
+        await browser.waitUntil(
+            async () => {
+                const results = await $$('ol.hJSA-list > li.hJSA-item');
+                return results.length > 0;
+            },
+            {
+                timeout: 30000,
+                timeoutMsg: 'No flight search results were displayed'
+            }
+        );
+    }
 }
+
 export default new FlightSearchPage();

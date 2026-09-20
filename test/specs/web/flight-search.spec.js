@@ -19,21 +19,20 @@ describe('Cheapflights - Search', () => {
         const dates = getFlightDates();
 
         await HomePage.searchFlights({
-            origin: 'Cebu',
+            origin: 'Manila',
             destination: 'Boracay',
             cabinClass: 'Economy',
             departureDate: dates.departure.calendar,
             returnDate: dates.return.calendar
         });
-        const returnTripButton =
-            await FlightSearchPage.getReturnTripButton();
 
         await FlightSearchPage.verifySearchDetails({
-            origin: 'Cebu City',
+            origin: 'Manila',
             destination: 'Boracay',
             departureDate: dates.departure.header,
             returnDate: dates.return.header,
             cabinClass: 'Economy'
         });
+        await FlightSearchPage.verifySearchResultsExist();
     });
 });
