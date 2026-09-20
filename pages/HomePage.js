@@ -51,6 +51,17 @@ class HomePage {
         return $(`div[role="button"][aria-label*="${date}"]`);
     }
 
+    get departureCalendar() {
+        return $('[aria-label="Departure date"].OV9e-cal-wrapper');
+    }
+
+    getCabinClassOption(cabinClass) {
+        return $(`label[role="radio"][aria-label="${cabinClass}"]`);
+    }
+
+    get tripTypeButton() {
+        return $('[role="combobox"][aria-label="Trip type"]');
+    }
     async open() {
         await browser.url('/');
     }
@@ -94,19 +105,30 @@ class HomePage {
         const departureDate = getFormattedDate(0);
         const returnDate = getFormattedDate(3);
 
-        await this.departureDateButton.click();
+        // Open calendar only if it isn't already open
+        if (!(await this.departureCalendar.isDisplayed())) {
+            await this.departureDateButton.click();
+        }
 
         await this.selectDate(departureDate);
         await this.selectDate(returnDate);
     }
 
-    async searchFlights(origin, destination) {
+    async searchFlights(origin, destination, cabinClass) {
         await this.setOrigin(origin);
         await this.setDestination(destination);
         await this.selectDepartureAndReturnDates();
+        await this.selectCabinClass(cabinClass);
         await this.searchButton.click();
     }
 
+    async selectCabinClass(cabinClass) {
+        const cabinOption = this.getCabinClassOption(cabinClass);
+        await cabinOption.click();
+        await expect(cabinOption).toHaveAttribute('aria-checked', 'true');
+        // Close cabin class selector
+        await this.tripTypeButton.click();
+    }
 }
 
 export default new HomePage();

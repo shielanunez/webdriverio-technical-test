@@ -8,7 +8,10 @@ describe('Cheapflights - Search', () => {
 
     })
     it('should search flights from Cebu to Boracay', async () => {
-        await HomePage.searchFlights('Cebu', 'Boracay');
+        await HomePage.searchFlights('Cebu', 'Boracay','Economy');
+        const currentUrl = await browser.getUrl();
+        expect(currentUrl).toContain('/flight-search');
+        await browser.debug();
     })
 
 })
