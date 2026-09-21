@@ -1,34 +1,37 @@
 export async function switchToNewWindow(originalWindow) {
-    let resultsWindow;
-
     await browser.waitUntil(
         async () => {
             const handles = await browser.getWindowHandles();
-
-            for (const handle of handles) {
-                if (handle === originalWindow) {
-                    continue;
-                }
-
-                await browser.switchToWindow(handle);
-
-                const url = await browser.getUrl();
-
-                if (url.includes('/flight-search/')) {
-                    resultsWindow = handle;
-                    return true;
-                }
-            }
-
-            return false;
+            return handles.length > 1;
         },
         {
             timeout: 30000,
-            timeoutMsg: 'Flight search results window did not load'
+            timeoutMsg: 'Flight search results window did not open'
         }
     );
 
-    await browser.switchToWindow(resultsWindow);
+    const handles = await browser.getWindowHandles();
 
-    return resultsWindow;
+    const newWindow = handles.find(
+        handle => handle !== originalWindow
+    );
+
+    if (!newWindow) {
+        throw new Error('Could not find the flight search results window');
+    }
+
+    await browser.switchToWindow(newWindow);
+
+    await browser.waitUntil(
+        async () => {
+            const url = await browser.getUrl();
+            return url.includes('/flight-search/');
+        },
+        {
+            timeout: 30000,
+            timeoutMsg: 'Flight search results page did not load'
+        }
+    );
+
+    return newWindow;
 }

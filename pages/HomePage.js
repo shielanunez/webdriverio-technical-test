@@ -63,6 +63,17 @@ class HomePage {
         return $('div[role="combobox"][aria-label="Trip type"]');
     }
 
+    get searchErrorTitle() {
+        return $('.GRvf-title');
+    }
+
+    get searchErrorMessages() {
+        return $$('[role="alert"]');
+    }
+
+    get dismissButton() {
+        return $('button=Dismiss');
+    }
     async clearBrowserState() {
         try {
             await browser.deleteAllCookies();
@@ -138,14 +149,19 @@ class HomePage {
             returnDate
         );
 
-        await browser.pause(1000);
+        // await browser.pause(1000);
 
         await this.selectCabinClass(cabinClass);
         const originalWindow = await browser.getWindowHandle();
         await this.searchButton.click();
+        await browser.pause(5000);
 
-        return await switchToNewWindow(originalWindow);
-       
+        console.log('URL:', await browser.getUrl());
+
+        console.log('WINDOWS:', await browser.getWindowHandles());
+
+        await switchToNewWindow(originalWindow);
+
     }
 
     async selectCabinClass(cabinClass) {
@@ -184,6 +200,21 @@ class HomePage {
                 }
             );
         }
+    }
+
+    async clickSearch() {
+        await this.searchButton.click();
+    }
+
+    async verifySearchErrorModal(title) {
+        await expect(this.searchErrorTitle).toHaveText(title);
+        await expect(this.dismissButton).toBeDisplayed();
+    }
+
+    async verifySearchErrorMessage(message) {
+        await expect(this.searchErrorMessages).toHaveText(
+            expect.arrayContaining([message])
+        );
     }
 }
 
