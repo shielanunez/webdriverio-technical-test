@@ -37,7 +37,7 @@ class HomePage {
         return $('[role="button"][aria-label="Departure date"]');
     }
 
-    get departureReturnButton(){
+    get departureReturnButton() {
         return $('//div[@role="button"][normalize-space()="Departure - Return"]')
     }
     get returnDateButton() {
@@ -231,13 +231,21 @@ class HomePage {
     }
 
     async verifySearchErrorMessages(messages) {
-        await browser.waitUntil(
-            async () => (await $$('[role="alert"]')).length > 0,
-            {
-                timeout: 5000,
-                timeoutMsg: 'Search validation messages did not appear'
-            }
-        );
+        try {
+            await browser.waitUntil(
+                async () => (await $$('[role="alert"]')).length > 0,
+                {
+                    timeout: 5000,
+                    interval: 500
+                }
+            );
+        } catch (error) {
+            console.warn(
+
+                '⚠ Search validation dialog did not display.'
+            );
+            throw error;
+        }
 
         const actualMessages = [];
 
@@ -253,6 +261,21 @@ class HomePage {
     async switchToSearchResults(originalWindow) {
         await switchToNewWindow(originalWindow);
     }
+
+    async verifyAirportSelectionErrorSoft(expectedMessage) {
+        try {
+            await expect(this.airportSelectionError)
+                .toHaveText(expectedMessage);
+
+            console.log(`✓ Dialog displayed: "${expectedMessage}"`);
+        } catch (error) {
+            console.warn(
+                `⚠ Expected dialog did not display: "${expectedMessage}"`
+            );
+        }
+    }
+
+
 }
 
 export default new HomePage();

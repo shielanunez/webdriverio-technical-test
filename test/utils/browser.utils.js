@@ -6,6 +6,7 @@ export async function switchToNewWindow(originalWindow) {
         },
         {
             timeout: 30000,
+            interval: 500,
             timeoutMsg: 'Flight search results window did not open'
         }
     );

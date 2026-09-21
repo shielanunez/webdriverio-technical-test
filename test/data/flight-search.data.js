@@ -1,13 +1,13 @@
 export const flightSearchData = {
     valid: {
         origin: 'Manila',
-        destination: 'Davao',
+        destination: 'Boracay',
         cabinClass: 'Economy'
     },
 
     missingOrigin: {
         origin: false,
-        destination: 'Davao',
+        destination: 'Boracay',
         cabinClass: 'Economy'
     },
 

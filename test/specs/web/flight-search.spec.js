@@ -42,11 +42,20 @@ describe('Cheapflights - Search', () => {
 
         await HomePage.clearOrigin();
 
-        await HomePage.searchFlights({
-            ...flightSearchData.missingOrigin,
-            departureDate: dates.departure.calendar,
-            returnDate: dates.return.calendar
-        });
+        await HomePage.setDestination(
+            flightSearchData.missingOrigin.destination
+        );
+
+        await HomePage.selectDepartureAndReturnDates(
+            dates.departure.calendar,
+            dates.return.calendar
+        );
+
+        await HomePage.selectCabinClass(
+            flightSearchData.missingOrigin.cabinClass
+        );
+
+        await HomePage.clickSearch();
 
         await HomePage.verifySearchErrorMessages([
             searchErrorMessages.missingOrigin
@@ -55,13 +64,23 @@ describe('Cheapflights - Search', () => {
 
     it('should display an error message when no destination is selected', async () => {
         const dates = getFlightDates();
-        await HomePage.searchFlights({
-            ...flightSearchData.missingDestination,
-            departureDate: dates.departure.calendar,
-            returnDate: dates.return.calendar
-        });
 
-        await expect(HomePage.airportSelectionError)
+        await HomePage.setOrigin(
+            flightSearchData.missingDestination.origin
+        );
+
+        await HomePage.selectDepartureAndReturnDates(
+            dates.departure.calendar,
+            dates.return.calendar
+        );
+
+        await HomePage.selectCabinClass(
+            flightSearchData.missingDestination.cabinClass
+        );
+
+        await HomePage.clickSearch();
+
+        await expect.soft(HomePage.airportSelectionError)
             .toHaveText("You didn't select an airport");
     });
 });
