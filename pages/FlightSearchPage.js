@@ -10,13 +10,13 @@ class FlightSearchPage {
 
     async getResultsOrigin(origin) {
         return this.getVisibleElement(
-            `[role="option"][aria-label="${origin}"]`
+            `[role="button"][aria-label^="Flight origin input"][aria-label$="${origin}"]`
         );
     }
 
     async getResultsDestination(destination) {
         return this.getVisibleElement(
-            `[role="option"][aria-label="${destination}"]`
+            `[role="button"][aria-label^="Flight destination input"][aria-label$="${destination}"]`
         );
     }
 
@@ -95,7 +95,10 @@ class FlightSearchPage {
     async verifySearchResultsExist() {
         await browser.waitUntil(
             async () => {
-                const results = await $$('ol.hJSA-list > li.hJSA-item');
+                const results = await $$(
+                    '#flight-results-list-wrapper [role="group"][aria-label^="Result item"]'
+                );
+
                 return results.length > 0;
             },
             {
