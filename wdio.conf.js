@@ -1,5 +1,6 @@
 const path = require('node:path');
 const fs = require('node:fs');
+const isHeadless = process.env.HEADLESS === 'true';
 exports.config = {
 
     runner: 'local',
@@ -14,6 +15,7 @@ exports.config = {
         browserName: 'chrome',
         'goog:chromeOptions': {
             args: [
+                ...(isHeadless ? ['--headless=new'] : []),
                 '--window-size=1920,1080'
             ]
         },

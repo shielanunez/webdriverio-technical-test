@@ -4,8 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "npx wdio run wdio.conf.js",
-    "wdio": "wdio run ./wdio.conf.js"
+    "test": "wdio run wdio.conf.js",
+    "test:headless": "HEADLESS=true wdio run wdio.conf.js",
+    "test:web": "wdio run wdio.conf.js --spec test/specs/web",
+    "test:api": "wdio run wdio.conf.js --spec test/specs/api",
+    "test:web:headless": "HEADLESS=true wdio run wdio.conf.js --spec test/specs/web",
+    "test:api:headless": "HEADLESS=true wdio run wdio.conf.js --spec test/specs/api"
   },
   "keywords": [],
   "author": "",
