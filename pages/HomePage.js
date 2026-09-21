@@ -1,4 +1,5 @@
 import { switchToNewWindow } from '../test/utils/browser.utils.js';
+import { expect as chaiExpect } from 'chai';
 
 class HomePage {
 
@@ -142,26 +143,32 @@ class HomePage {
         departureDate,
         returnDate
     }) {
-        await this.setOrigin(origin);
-        await this.setDestination(destination);
-        await this.selectDepartureAndReturnDates(
-            departureDate,
-            returnDate
-        );
+        if (origin) {
+            await this.setOrigin(origin);
+        }
 
-        // await browser.pause(1000);
+        if (destination) {
+            await this.setDestination(destination);
+        }
 
-        await this.selectCabinClass(cabinClass);
+        if (departureDate && returnDate) {
+            await this.selectDepartureAndReturnDates(
+                departureDate,
+                returnDate
+            );
+        }
+
+        if (cabinClass) {
+            await this.selectCabinClass(cabinClass);
+        }
+
         const originalWindow = await browser.getWindowHandle();
+
         await this.searchButton.click();
+
         await browser.pause(5000);
 
-        console.log('URL:', await browser.getUrl());
-
-        console.log('WINDOWS:', await browser.getWindowHandles());
-
         await switchToNewWindow(originalWindow);
-
     }
 
     async selectCabinClass(cabinClass) {
@@ -211,10 +218,24 @@ class HomePage {
         await expect(this.dismissButton).toBeDisplayed();
     }
 
-    async verifySearchErrorMessage(message) {
-        await expect(this.searchErrorMessages).toHaveText(
-            expect.arrayContaining([message])
+    async verifySearchErrorMessages(messages) {
+        await browser.waitUntil(
+            async () => (await $$('[role="alert"]')).length > 0,
+            {
+                timeout: 5000,
+                timeoutMsg: 'Search validation messages did not appear'
+            }
         );
+
+        const actualMessages = [];
+
+        for (const element of await $$('[role="alert"]')) {
+            actualMessages.push(await element.getText());
+        }
+
+        for (const message of messages) {
+            chaiExpect(actualMessages).to.include(message);
+        }
     }
 }
 
