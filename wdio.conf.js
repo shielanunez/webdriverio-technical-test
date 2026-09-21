@@ -41,12 +41,43 @@ exports.config = {
         ui: 'bdd',
         timeout: 60000
     },
+    onPrepare: function () {
+
+        const screenshotsDir = path.resolve('./screenshots');
+        if (fs.existsSync(screenshotsDir)) {
+            fs.rmSync(screenshotsDir, {
+                recursive: true,
+                force: true
+            });
+        }
+
+        fs.mkdirSync(screenshotsDir, {
+            recursive: true
+        });
+    },
     afterTest: async function (test, context, { error }) {
         if (error) {
             const fileName = test.title.replace(/[^a-z0-9]/gi, '_');
 
+            const now = new Date();
+            const timestamp = now
+                .toLocaleString('en-CA', {
+                    timeZone: 'Asia/Manila',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                })
+                .replace(/:/g, '-')
+                .replace(/, /g, '_')
+                .replace(/\//g, '-')
+                .replace(/\s/g, '');
+
             await browser.saveScreenshot(
-                `./screenshots/${fileName}.png`
+                `./screenshots/${fileName}_${timestamp}.png`
             );
         }
     },

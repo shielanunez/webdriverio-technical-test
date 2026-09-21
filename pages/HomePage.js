@@ -36,10 +36,17 @@ class HomePage {
     get departureDateButton() {
         return $('[role="button"][aria-label="Departure date"]');
     }
+
+    get departureReturnButton(){
+        return $('//div[@role="button"][normalize-space()="Departure - Return"]')
+    }
     get returnDateButton() {
         return $('[role="button"][aria-label="Return date"]');
     }
 
+    get flightDateButton() {
+        return $('//span[text()="Departure"]');
+    }
     getDateButton(date) {
         return $(`div[role="button"][aria-label*="${date}"]`);
     }
@@ -75,9 +82,13 @@ class HomePage {
     get dismissButton() {
         return $('button=Dismiss');
     }
+
+    get airportSelectionError() {
+        return $('.TaO3-title');
+    }
     async clearBrowserState() {
         try {
-            await browser.deleteAllCookies();
+            await browser.deleteCookies();
 
             await browser.execute(() => {
                 localStorage.clear();
@@ -99,7 +110,12 @@ class HomePage {
 
     async setOrigin(value) {
         const originInputField = this.originInput;
-        await this.selectLocation(originInputField, value);
+        const currentValue = await originInputField.getValue();
+
+        if (currentValue !== value) {
+            await this.clearOrigin();
+            await this.selectLocation(originInputField, value);
+        }
     }
 
     async setDestination(value) {
@@ -115,6 +131,7 @@ class HomePage {
         await browser.pause(1000);
         //Select the first item
         await browser.keys("Enter");
+        await browser.keys("Escape");
     }
 
     async selectToday() {
@@ -127,9 +144,10 @@ class HomePage {
     }
 
     async selectDepartureAndReturnDates(departureDate, returnDate) {
-        // Open calendar only if it isn't already open
+        const departureSpan = await $('//span[@class="bCht-placeholder" and text()="Departure"]');
+
         if (!(await this.departureCalendar.isDisplayed())) {
-            await this.departureDateButton.click();
+            await this.flightDateButton.click();
         }
 
         await this.selectDate(departureDate);
@@ -162,13 +180,7 @@ class HomePage {
             await this.selectCabinClass(cabinClass);
         }
 
-        const originalWindow = await browser.getWindowHandle();
-
         await this.searchButton.click();
-
-        await browser.pause(5000);
-
-        await switchToNewWindow(originalWindow);
     }
 
     async selectCabinClass(cabinClass) {
@@ -236,6 +248,10 @@ class HomePage {
         for (const message of messages) {
             chaiExpect(actualMessages).to.include(message);
         }
+    }
+
+    async switchToSearchResults(originalWindow) {
+        await switchToNewWindow(originalWindow);
     }
 }
 

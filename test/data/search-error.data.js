@@ -1,7 +1,7 @@
 export const searchErrorMessages = {
     missingOrigin: "Please enter a 'From' airport.",
 
-    missingDestination: "Please enter a 'To' airport.",
+    missingDestination: "You didn't select an airport",
 
     invalidDepartureDate:
         "Please enter a valid 'Depart' date.",

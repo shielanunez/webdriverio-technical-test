@@ -1,13 +1,15 @@
-import HomePage from "../../../pages/HomePage";
-import FlightSearchPage from "../../../pages/FlightSearchPage";
-import { getFlightDates } from "../../utils/date.utils";
+import HomePage from '../../../pages/HomePage';
+import FlightSearchPage from '../../../pages/FlightSearchPage';
+import { getFlightDates } from '../../utils/date.utils';
+import { flightSearchData } from '../../data/flight-search.data';
 import { searchErrorMessages } from '../../data/search-error.data.js';
+import { switchToNewWindow } from '../../utils/browser.utils.js';
+
 describe('Cheapflights - Search', () => {
 
     beforeEach(async () => {
         await HomePage.clearBrowserState();
         await HomePage.open();
-        await HomePage.clearOrigin();
     });
 
     afterEach(async () => {
@@ -15,43 +17,51 @@ describe('Cheapflights - Search', () => {
     });
 
     it('should search flights from Manila to Boracay', async () => {
-
         const dates = getFlightDates();
+        const originalWindow = await browser.getWindowHandle();
 
         await HomePage.searchFlights({
-            origin: 'Manila',
-            destination: 'Boracay',
-            cabinClass: 'Economy',
+            ...flightSearchData.valid,
             departureDate: dates.departure.calendar,
             returnDate: dates.return.calendar
         });
 
-        console.log('URL:', await browser.getUrl());
-
-        console.log(
-            'Origin result elements:',
-            await $$('[role="button"][aria-label^="Flight origin input"]').length
-        );
-
-        console.log(
-            'Destination result elements:',
-            await $$('[role="button"][aria-label^="Flight destination input"]').length
-        );
+        await switchToNewWindow(originalWindow);
 
         await FlightSearchPage.verifySearchDetails({
-            origin: 'Manila',
-            destination: 'Boracay',
+            ...flightSearchData.valid,
             departureDate: dates.departure.header,
-            returnDate: dates.return.header,
-            cabinClass: 'Economy'
+            returnDate: dates.return.header
         });
+
         await FlightSearchPage.verifySearchResultsExist();
     });
 
-    it('should display validation errors when required search fields are not selected', async () => {
-        await HomePage.clickSearch();
-        await HomePage.verifySearchErrorMessages(
-            Object.values(searchErrorMessages)
-        );
+    it('should display an error message when no origin is selected', async () => {
+        const dates = getFlightDates();
+
+        await HomePage.clearOrigin();
+
+        await HomePage.searchFlights({
+            ...flightSearchData.missingOrigin,
+            departureDate: dates.departure.calendar,
+            returnDate: dates.return.calendar
+        });
+
+        await HomePage.verifySearchErrorMessages([
+            searchErrorMessages.missingOrigin
+        ]);
+    });
+
+    it('should display an error message when no destination is selected', async () => {
+        const dates = getFlightDates();
+        await HomePage.searchFlights({
+            ...flightSearchData.missingDestination,
+            departureDate: dates.departure.calendar,
+            returnDate: dates.return.calendar
+        });
+
+        await expect(HomePage.airportSelectionError)
+            .toHaveText("You didn't select an airport");
     });
 });
