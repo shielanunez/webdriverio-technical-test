@@ -49,9 +49,7 @@ describe('Cheapflights - Search', () => {
     });
 
     it('should display validation errors when required search fields are not selected', async () => {
-        await HomePage.clearOrigin();
         await HomePage.clickSearch();
-
         await HomePage.verifySearchErrorMessages(
             Object.values(searchErrorMessages)
         );
