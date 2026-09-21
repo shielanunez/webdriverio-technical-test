@@ -1,7 +1,7 @@
 import HomePage from "../../../pages/HomePage";
 import FlightSearchPage from "../../../pages/FlightSearchPage";
 import { getFlightDates } from "../../utils/date.utils";
-import { searchErrorModalTitle, searchErrorMessages } from '../../data/search-error.data.js';
+import { searchErrorMessages } from '../../data/search-error.data.js';
 describe('Cheapflights - Search', () => {
 
     beforeEach(async () => {
@@ -48,21 +48,12 @@ describe('Cheapflights - Search', () => {
         await FlightSearchPage.verifySearchResultsExist();
     });
 
-    // it('should display an error when origin is not selected', async () => {
-    //     const dates = getFlightDates();
-    //     await HomePage.setDestination('Boracay');
-    //     await HomePage.selectDepartureAndReturnDates(
-    //         dates.departure.calendar,
-    //         dates.return.calendar,
-    //     );
-    //     await HomePage.selectCabinClass('Economy');
-    //     await HomePage.clickSearch();
-    //     await HomePage.verifySearchErrorModal(
-    //         searchErrorModalTitle
-    //     );
+    it('should display validation errors when required search fields are not selected', async () => {
+        await HomePage.clearOrigin();
+        await HomePage.clickSearch();
 
-    //     await HomePage.verifySearchErrorMessage(
-    //         searchErrorMessages.missingOrigin
-    //     );
-    // });
+        await HomePage.verifySearchErrorMessages(
+            Object.values(searchErrorMessages)
+        );
+    });
 });
