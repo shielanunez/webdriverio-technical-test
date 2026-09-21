@@ -18,8 +18,7 @@ Web automation and API automation test suite developed as part of the QA Automat
 webdriverio-technical-test/
 ├── pages/
 │   ├── HomePage.js
-│   ├── FlightSearchPage.js
-│   └── cheapflights.page.js
+│   └── FlightSearchPage.js
 ├── test/
 │   ├── data/
 │   │   ├── booking.data.js
@@ -35,8 +34,6 @@ webdriverio-technical-test/
 │       ├── browser.utils.js
 │       ├── booking.api.js
 │       └── date.utils.js
-├── screenshots/
-├── allure-results/
 ├── .gitignore
 ├── package.json
 ├── package-lock.json
